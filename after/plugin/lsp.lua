@@ -49,7 +49,7 @@ end
 require("mason").setup()
 require("mason-lspconfig").setup({
     ensure_installed = {
-        "lua_ls", "pyright", "clangd", "asm_lsp", "marksman", "vimls", "typescript-language-server", "emmet-ls",
+        "lua_ls", "pyright", "clangd", "asm_lsp", "marksman", "vimls", "ts_ls", "emmet_ls",
     },
 })
 
