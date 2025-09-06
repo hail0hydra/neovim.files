@@ -263,4 +263,12 @@ return {
         end,
     },
 
+    -- type `rafce` in a jsx file and see
+    {
+        'dsznajder/vscode-es7-javascript-react-snippets',
+        build = 'yarn install --frozen-lockfile && yarn compile',
+    }
+
+
+
 }
