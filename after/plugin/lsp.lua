@@ -72,6 +72,9 @@ lspconfig.lua_ls.setup({
 -- Pyright
 lspconfig.pyright.setup({
     on_attach = on_attach,
+    before_init = function(_, config)
+        config.settings.python.analysis.stubPath = vim.fs.joinpath(vim.fn.stdpath "data", "lazy", "python-type-stubs") 
+    end,
     capabilities = capabilities,
     filetypes = { "python" },
 })
@@ -145,14 +148,15 @@ lspconfig.vimls.setup({
 lspconfig.emmet_ls.setup({
     on_attach = on_attach,
     capabilities = capabilities,
-    filetypes = { "css", "eruby", "html", "javascript", "javascriptreact", "less", "sass", "scss", "svelte", "pug", "typescriptreact", "vue" },
+    -- filetypes = { "css", "eruby", "html", "javascript", "javascriptreact", "less", "sass", "scss", "svelte", "pug", "typescriptreact", "vue" },
+    filetypes = { "css", "eruby", "html",  "javascriptreact", "less", "sass", "scss", "svelte", "pug", "typescriptreact", "vue" },
     init_options = {
-      html = {
-        options = {
-          -- For possible options, see: https://github.com/emmetio/emmet/blob/master/src/config.ts#L79-L267
-          ["bem.enabled"] = true,
+        html = {
+            options = {
+                -- For possible options, see: https://github.com/emmetio/emmet/blob/master/src/config.ts#L79-L267
+                ["bem.enabled"] = true,
+            },
         },
-      },
     },
     single_file_support = true,
 })
