@@ -60,6 +60,16 @@ nnoremap <leader>y "+y
 nnoremap <leader>yy "+yy
 ]])
 
+
+--  cmake colorscheme
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "cmake",
+  callback = function()
+    vim.cmd("colorscheme unokai")
+  end,
+})
+
+
 -- set autoindent
 -- " set smartindent
 -- set background=dark

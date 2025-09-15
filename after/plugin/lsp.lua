@@ -115,6 +115,22 @@ lspconfig.marksman.setup({
     single_file_support = true,
 })
 
+
+
+-- cmake
+lspconfig.cmake.setup({
+    on_attach = on_attach,
+    capabilities = capabilities,
+    cmd = { "cmake-language-server" },
+    filetypes = { "cmake"},
+    init_options = { buildDirectory = "build" },
+    single_file_support = true,
+    root_markers = { "CMakePresets.json", "CTestConfig.cmake", ".git", "build", "cmake" },
+})
+
+
+
+
 -- Vim Language Server
 lspconfig.vimls.setup({
     on_attach = on_attach,
@@ -145,27 +161,44 @@ lspconfig.vimls.setup({
 
 
 --emmet-ls
-lspconfig.emmet_ls.setup({
-    on_attach = on_attach,
-    capabilities = capabilities,
-    -- filetypes = { "css", "eruby", "html", "javascript", "javascriptreact", "less", "sass", "scss", "svelte", "pug", "typescriptreact", "vue" },
-    filetypes = { "css", "eruby", "html",  "javascriptreact", "less", "sass", "scss", "svelte", "pug", "typescriptreact", "vue" },
-    init_options = {
-        html = {
-            options = {
-                -- For possible options, see: https://github.com/emmetio/emmet/blob/master/src/config.ts#L79-L267
-                ["bem.enabled"] = true,
-            },
-        },
-    },
-    single_file_support = true,
-})
+-- lspconfig.emmet_ls.setup({
+--     on_attach = on_attach,
+--     capabilities = capabilities,
+--     -- filetypes = { "css", "eruby", "html", "javascript", "javascriptreact", "less", "sass", "scss", "svelte", "pug", "typescriptreact", "vue" },
+--     filetypes = { "css", "eruby", "html",  "javascriptreact", "less", "sass", "scss", "svelte", "pug", "typescriptreact", "vue" },
+--     init_options = {
+--         html = {
+--             options = {
+--                 -- For possible options, see: https://github.com/emmetio/emmet/blob/master/src/config.ts#L79-L267
+--                 ["bem.enabled"] = true,
+--             },
+--         },
+--     },
+--     single_file_support = true,
+-- })
 
 -- Filetype override: treat .asm files as "asm"
+
 vim.filetype.add({
     extension = {
         asm = "asm",
     },
+})
+
+
+
+-- jsonls
+-- --Enable (broadcasting) snippet capability for completion
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+
+lspconfig.cmake.setup({
+    on_attach = on_attach,
+    capabilities = capabilities,
+    cmd = { "vscode-json-language-server", "--stdio" },
+    filetypes = { "json", "jsonc" },
+    init_options = { provideFormatter = true },
+    single_file_support = true,
+    root_markers = { ".git" },
 })
 
 
