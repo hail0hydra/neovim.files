@@ -12,6 +12,7 @@ return {
         "catppuccin/nvim",
         name = "catppuccin",
         priority = 1000,
+
         -- config = function()
         --     vim.cmd("colorscheme catppuccin-mocha")
         -- end
@@ -26,8 +27,20 @@ return {
                 transparent=true;
             }
             -- Enable theme
-            require('onedark').load()
+            -- require('onedark').load()
         end
+    },
+
+    {
+        "tiagovla/tokyodark.nvim",
+        opts = {
+            -- custom options here
+            transparent_background = false,
+        },
+        config = function(_, opts)
+            require("tokyodark").setup(opts) -- calling setup is optional
+            vim.cmd [[colorscheme tokyodark]]
+        end,
     },
 
     {
@@ -74,6 +87,7 @@ return {
             -- vim.cmd("colorscheme ayu")
         end
     },
+
 
     { -- lualine
         'nvim-lualine/lualine.nvim',
@@ -272,5 +286,28 @@ return {
     {
         "microsoft/python-type-stubs"
     },
+
+
+    {
+        "rachartier/tiny-inline-diagnostic.nvim",
+        event = "VeryLazy",
+        priority = 1000,
+        config = function()
+            require('tiny-inline-diagnostic').setup()
+            vim.diagnostic.config({ virtual_text = false }) -- Disable default virtual text
+        end
+    },
+
+    {
+        "OXY2DEV/helpview.nvim",
+        lazy = false
+    },
+
+    { 'nvim-mini/mini.icons', version = '*' },
+
+    -- {"shortcuts/no-neck-pain.nvim", version = "*"},
+
+    { 'dmmulroy/ts-error-translator.nvim' }
+
 
 }

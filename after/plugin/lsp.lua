@@ -77,6 +77,31 @@ lspconfig.pyright.setup({
     end,
     capabilities = capabilities,
     filetypes = { "python" },
+    settings = {
+        pyright = {
+      -- Using Ruff's import organizer
+      disableOrganizeImports = true,
+    },
+    python = {
+      analysis = {
+        -- Ignore all files for analysis to exclusively use Ruff for linting
+        ignore = { '*' },
+      },
+    },
+    },
+})
+
+-- ruff : linter & formatter for python
+lspconfig.ruff.setup({
+    on_attach = on_attach,
+    -- before_init = function(_, config)
+    --     config.settings.python.analysis.stubPath = vim.fs.joinpath(vim.fn.stdpath "data", "lazy", "python-type-stubs") 
+    -- end,
+    capabilities = capabilities,
+    filetypes = { "python" },
+    cmd = { "ruff", "server" },
+    root_markers = { "pyproject.toml", "ruff.toml", ".ruff.toml", ".git" },
+    settings = {logLevel = 'debug',},
 })
 
 -- Clangd
@@ -201,4 +226,4 @@ lspconfig.cmake.setup({
     root_markers = { ".git" },
 })
 
-
+require("ts-error-translator").setup()

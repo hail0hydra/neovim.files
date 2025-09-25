@@ -36,7 +36,8 @@ set winbar=%=%m\ %f
 autocmd BufEnter *.bin colorscheme wildcharm
 autocmd BufEnter *.hex colorscheme wildcharm
 autocmd BufEnter *.sh colorscheme moonfly
-autocmd BufEnter * highlight Normal guibg=none ctermbg=NONE
+" autocmd BufEnter * highlight Normal guibg=none ctermbg=NONE
+" autocmd BufEnter * highlight Normal
 
 
 " for hex | xxd
@@ -62,12 +63,12 @@ nnoremap <leader>yy "+yy
 
 
 --  cmake colorscheme
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "cmake",
-  callback = function()
-    vim.cmd("colorscheme unokai")
-  end,
-})
+-- vim.api.nvim_create_autocmd("FileType", {
+--   pattern = "cmake",
+--   callback = function()
+--     vim.cmd("colorscheme unokai")
+--   end,
+-- })
 
 
 -- set autoindent
