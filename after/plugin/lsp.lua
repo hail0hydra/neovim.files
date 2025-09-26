@@ -45,11 +45,12 @@ if ok_cmp then
     capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
 end
 
+
 -- Mason setup
 require("mason").setup()
 require("mason-lspconfig").setup({
     ensure_installed = {
-        "lua_ls", "pyright", "clangd", "asm_lsp", "marksman", "vimls", "ts_ls", "emmet_ls",
+        "lua_ls", "pyright", "clangd", "asm_lsp", "marksman", "vimls", "ts_ls", "emmet_ls", "ruff",
     },
 })
 
