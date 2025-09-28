@@ -50,7 +50,7 @@ end
 require("mason").setup()
 require("mason-lspconfig").setup({
     ensure_installed = {
-        "lua_ls", "pyright", "clangd", "asm_lsp", "marksman", "vimls", "ts_ls", "emmet_ls", "ruff",
+        "lua_ls", "pyright", "clangd", "asm_lsp", "marksman", "vimls", "ts_ls", "emmet_ls", "ruff", "jsonls",
     },
 })
 
@@ -157,6 +157,7 @@ lspconfig.cmake.setup({
 
 
 
+
 -- Vim Language Server
 lspconfig.vimls.setup({
     on_attach = on_attach,
@@ -217,7 +218,7 @@ vim.filetype.add({
 -- --Enable (broadcasting) snippet capability for completion
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
-lspconfig.cmake.setup({
+lspconfig.jsonls.setup({
     on_attach = on_attach,
     capabilities = capabilities,
     cmd = { "vscode-json-language-server", "--stdio" },
@@ -226,5 +227,33 @@ lspconfig.cmake.setup({
     single_file_support = true,
     root_markers = { ".git" },
 })
+
+-- local function command_factory(client, bufnr, cmd)
+--   return client:exec_cmd({
+--     title = ('Markdown-Oxide-%s'):format(cmd),
+--     command = 'jump',
+--     arguments = { cmd },
+--   }, { bufnr = bufnr })
+-- end
+
+-- on_attach = function(client, bufnr)
+--     for _, cmd in ipairs({ 'today', 'tomorrow', 'yesterday' }) do
+--       vim.api.nvim_buf_create_user_command(bufnr, 'Lsp' .. ('%s'):format(cmd:gsub('^%l', string.upper)), function()
+--         command_factory(client, bufnr, cmd)
+--       end, {
+--         desc = ('Open %s daily note'):format(cmd),
+--       })
+--     end
+--   end,
+--
+--
+-- lspconfig.markdown_oxide.setup({
+--     on_attach = on_attach,
+--     capabilities = capabilities,
+--     cmd = { "markdown-oxide" },
+--     filetypes = { "markdown"},
+--     root_markers = { '.git', '.obsidian', '.moxide.toml' },
+--     single_file_support = true,
+-- })
 
 require("ts-error-translator").setup()

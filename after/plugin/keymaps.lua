@@ -1,6 +1,7 @@
 local opts = {noremap=true, silent=true}
 local map = vim.api.nvim_set_keymap
 
+vim.keymap.set('n', '<bs>', ':edit #<cr>', { silent = true })
 --
 --
 map('n','<c-/>','<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<cr>',opts) -- current buffer
