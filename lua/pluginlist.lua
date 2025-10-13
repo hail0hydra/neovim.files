@@ -35,7 +35,7 @@ return {
         "tiagovla/tokyodark.nvim",
         opts = {
             -- custom options here
-            transparent_background = false,
+            transparent_background = true,
         },
         config = function(_, opts)
             require("tokyodark").setup(opts) -- calling setup is optional
@@ -300,7 +300,7 @@ return {
 
     {
         "OXY2DEV/helpview.nvim",
-        lazy = false
+        lazy = true
     },
 
     { 'nvim-mini/mini.icons', version = '*' },
@@ -342,6 +342,63 @@ return {
     -- markdown links
     {
         'jghauser/follow-md-links.nvim'
+    },
+
+
+    -- no idea after this
+
+
+    -- after java guy
+    'andymass/vim-matchup',
+    'bronson/vim-visual-star-search',
+    {
+        'chentoast/marks.nvim',
+        event = "VeryLazy",
+        opts = {},
+    },
+
+
+    -- not following , old so found this
+    {'nvim-java/nvim-java'},
+
+    -- Fzf-Lua
+    {
+        "ibhagwan/fzf-lua",
+        -- optional for icon support
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        -- or if using mini.icons/mini.nvim
+        -- dependencies = { "nvim-mini/mini.icons" },
+        opts = {}
+    },
+
+
+    -- scientific notes
+
+    {
+        "jbyuki/nabla.nvim",
+        dependencies = {
+            "nvim-neo-tree/neo-tree.nvim",
+            "williamboman/mason.nvim",
+        },
+        lazy = true,
+
+        config = function()
+            require("nvim-treesitter.configs").setup({
+                ensure_installed = { "latex" },
+                auto_install = true,
+                sync_install = false,
+            })
+        end,
+
+        keys = function()
+            return {
+                {
+                    "<leader>p",
+                    ':lua require("nabla").popup()<cr>',
+                    desc = "NablaPopUp",
+                },
+            }
+        end,
     },
 
 }

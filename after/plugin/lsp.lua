@@ -1,12 +1,15 @@
+-- LSP configuration
+-- local remap = require("me.util").remap
+
 -- Register Treesitter lang for asm
 vim.treesitter.language.register('nasm', 'asm')
 
+-- diagnostics {FALSE}
+vim.diagnostic.config({ virtual_text = false })
+local diagnostics_active = false
+-- using tiny-diagnostics so turned above thing off
 
--- diagnostics
-vim.diagnostic.config({ virtual_text = true })
 
-
-local diagnostics_active = true
 
 vim.keymap.set("n", "<leader>dq", function()
     diagnostics_active = not diagnostics_active
@@ -23,14 +26,16 @@ local on_attach = function(_, bufnr)
     end
 
     bufmap('<leader>gr', require('telescope.builtin').lsp_references)
-    bufmap('<leader>s', require('telescope.builtin').lsp_document_symbols)
-    bufmap('<leader>S', require('telescope.builtin').lsp_dynamic_workspace_symbols)
+    -- bufmap('<leader>s', require('telescope.builtin').lsp_document_symbols)
+    bufmap('<leader>s', require('fzf-lua').lsp_document_symbols)
+    -- bufmap('<leader>S', require('telescope.builtin').lsp_dynamic_workspace_symbols)
+    bufmap('<leader>S', require('fzf-lua').lsp_live_workspace_symbols)
     bufmap('<leader>r', vim.lsp.buf.rename)
     bufmap('<leader>a', vim.lsp.buf.code_action)
-    bufmap('<leader>gd', vim.lsp.buf.definition)
-    bufmap('<leader>gD', vim.lsp.buf.declaration)
+    bufmap('gd', vim.lsp.buf.definition)
+    bufmap('gD', vim.lsp.buf.declaration)
     bufmap('<leader>gi', vim.lsp.buf.implementation)
-    bufmap('<leader>D', vim.lsp.buf.type_definition)
+    bufmap('<space>D', vim.lsp.buf.type_definition)
     bufmap('K', vim.lsp.buf.hover)
 
     vim.api.nvim_buf_create_user_command(bufnr, 'Format', function()
@@ -50,53 +55,105 @@ end
 require("mason").setup()
 require("mason-lspconfig").setup({
     ensure_installed = {
-        "lua_ls", "pyright", "clangd", "asm_lsp", "marksman", "vimls", "ts_ls", "emmet_ls", "ruff", "jsonls",
+        "lua_ls", "pyright", "clangd", "asm_lsp", "marksman", "vimls", "ts_ls", "emmet_ls", "ruff", "jsonls","gopls","rust_analyzer",
     },
 })
 
-local lspconfig = require("lspconfig")
+local old_lspconfig = require("lspconfig")
+local lspconfig = vim.lsp.config
 
 -- Lua LS
-require("neodev").setup()
-lspconfig.lua_ls.setup({
-    on_attach = on_attach,
-    capabilities = capabilities,
-    settings = {
-        Lua = {
-            workspace = { checkThirdParty = false },
-            telemetry = { enable = false },
+-- require("neodev").setup()
+-- lspconfig("lua_ls",{
+--     on_attach = on_attach,
+--     capabilities = capabilities,
+--     settings = {
+--         Lua = {
+--             workspace = { checkThirdParty = false },
+--             telemetry = { enable = false },
+--         },
+--     },
+--     filetype = {"lua"},
+--     root_dir = { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", "selene.toml", "selene.yml", ".git" },
+-- })
+vim.lsp.config('lua_ls', {
+  on_init = function(client)
+    if client.workspace_folders then
+      local path = client.workspace_folders[1].name
+      if
+        path ~= vim.fn.stdpath('config')
+        and (vim.uv.fs_stat(path .. '/.luarc.json') or vim.uv.fs_stat(path .. '/.luarc.jsonc'))
+      then
+        return
+      end
+    end
+
+    client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
+      runtime = {
+        -- Tell the language server which version of Lua you're using (most
+        -- likely LuaJIT in the case of Neovim)
+        version = 'LuaJIT',
+        -- Tell the language server how to find Lua modules same way as Neovim
+        -- (see `:h lua-module-load`)
+        path = {
+          'lua/?.lua',
+          'lua/?/init.lua',
         },
-    },
-    root_dir = lspconfig.util.root_pattern(".git", "init.lua", "lua"),
+      },
+      -- Make the server aware of Neovim runtime files
+      workspace = {
+        checkThirdParty = false,
+        library = {
+          vim.env.VIMRUNTIME
+          -- Depending on the usage, you might want to add additional paths
+          -- here.
+          -- '${3rd}/luv/library'
+          -- '${3rd}/busted/library'
+        }
+        -- Or pull in all of 'runtimepath'.
+        -- NOTE: this is a lot slower and will cause issues when working on
+        -- your own configuration.
+        -- See https://github.com/neovim/nvim-lspconfig/issues/3189
+        -- library = {
+        --   vim.api.nvim_get_runtime_file('', true),
+        -- }
+      }
+    })
+  end,
+  settings = {
+    Lua = {}
+  }
 })
 
+
 -- Pyright
-lspconfig.pyright.setup({
+lspconfig("pyright",{
     on_attach = on_attach,
     before_init = function(_, config)
-        config.settings.python.analysis.stubPath = vim.fs.joinpath(vim.fn.stdpath "data", "lazy", "python-type-stubs") 
+        config.settings.python.analysis.stubPath = vim.fs.joinpath(vim.fn.stdpath "data", "lazy", "python-type-stubs")
     end,
     capabilities = capabilities,
     filetypes = { "python" },
     settings = {
         pyright = {
-      -- Using Ruff's import organizer
-      disableOrganizeImports = true,
-    },
-    python = {
-      analysis = {
-        -- Ignore all files for analysis to exclusively use Ruff for linting
-        ignore = { '*' },
-      },
-    },
+            -- Using Ruff's import organizer
+            disableOrganizeImports = true,
+        },
+        python = {
+            analysis = {
+                -- Ignore all files for analysis to exclusively use Ruff for linting
+                ignore = { '*' },
+            },
+        },
     },
 })
 
+
 -- ruff : linter & formatter for python
-lspconfig.ruff.setup({
+lspconfig("ruff",{
     on_attach = on_attach,
     -- before_init = function(_, config)
-    --     config.settings.python.analysis.stubPath = vim.fs.joinpath(vim.fn.stdpath "data", "lazy", "python-type-stubs") 
+    --     config.settings.python.analysis.stubPath = vim.fs.joinpath(vim.fn.stdpath "data", "lazy", "python-type-stubs")
     -- end,
     capabilities = capabilities,
     filetypes = { "python" },
@@ -106,7 +163,7 @@ lspconfig.ruff.setup({
 })
 
 -- Clangd
-lspconfig.clangd.setup({
+lspconfig("clangd",{
     on_attach = on_attach,
     capabilities = capabilities,
     cmd = { "clangd" },
@@ -115,36 +172,37 @@ lspconfig.clangd.setup({
 })
 
 -- ASM LSP
-lspconfig.asm_lsp.setup({
+lspconfig("asm_lsp",{
     on_attach = on_attach,
     capabilities = capabilities,
     cmd = { "asm-lsp" },
     filetypes = { "asm", "nasm" },
-    root_dir = lspconfig.util.root_pattern(".git", "*.asm"),
+    root_dir = old_lspconfig.util.root_pattern(".git", "*.asm"),
 })
 
 
 -- typescript language server
-lspconfig.ts_ls.setup({
+lspconfig("ts_ls",{
     on_attach = on_attach,
     capabilities = capabilities,
     filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" },
+    flags = { debounce_text_changes = 300 },
 })
 
 -- Marksman
-lspconfig.marksman.setup({
+lspconfig("marksman",{
     on_attach = on_attach,
     capabilities = capabilities,
     cmd = { "marksman", "server" },
     filetypes = { "markdown", "markdown.mdx" },
-    root_dir = lspconfig.util.root_pattern(".git", ".marksman.toml", "*.md"),
+    root_dir = old_lspconfig.util.root_pattern(".git", ".marksman.toml", "*.md"),
     single_file_support = true,
 })
 
 
 
 -- cmake
-lspconfig.cmake.setup({
+lspconfig("cmake",{
     on_attach = on_attach,
     capabilities = capabilities,
     cmd = { "cmake-language-server" },
@@ -155,11 +213,49 @@ lspconfig.cmake.setup({
 })
 
 
+-- maybe latex
+lspconfig("ltex",{
+    on_attach = on_attach,
+    capabilities = capabilities,
+    -- filetypes = { "bib", "markdown", "org", "plaintex", "rst", "rnoweb", "tex", "pandoc" },
+    filetypes = { "bib", "org", "plaintex", "rst", "rnoweb", "tex", "pandoc" },
+    settings = {
+        ltex = {
+            language = "en-CA",
+        }
+    }
+})
+
+
+-- go maybe
+lspconfig("gopls",{
+    on_attach = on_attach,
+    capabilities = capabilities,
+    settings = {
+        analyses = {
+            unusedparams = true,
+        },
+        staticcheck = true,
+    },
+})
+
+
+-- rust analyzer
+lspconfig("rust_analyzer", {
+    on_attach = on_attach,
+    capabilities = capabilities
+})
+
+
+lspconfig("jdtls", {
+    on_attach = on_attach,
+    capabilities = capabilities
+})
 
 
 
 -- Vim Language Server
-lspconfig.vimls.setup({
+lspconfig("vimls",{
     on_attach = on_attach,
     capabilities = capabilities,
     cmd = { "vim-language-server", "--stdio" },
@@ -206,6 +302,9 @@ lspconfig.vimls.setup({
 
 -- Filetype override: treat .asm files as "asm"
 
+
+
+
 vim.filetype.add({
     extension = {
         asm = "asm",
@@ -218,7 +317,7 @@ vim.filetype.add({
 -- --Enable (broadcasting) snippet capability for completion
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
-lspconfig.jsonls.setup({
+lspconfig("jsonls",{
     on_attach = on_attach,
     capabilities = capabilities,
     cmd = { "vscode-json-language-server", "--stdio" },
@@ -257,3 +356,10 @@ lspconfig.jsonls.setup({
 -- })
 
 require("ts-error-translator").setup()
+
+
+
+
+-- enable them all
+
+vim.lsp.enable({"pyright", "ts_ls", "jsonls", "cmake", "lua_ls", "vimls", "clangd", "asm_lsp", "marksman", "rust_analyzer", "gopls", "ltex", "marksman"})
